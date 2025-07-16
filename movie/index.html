@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Poster Wall</title>
+    <style>
+        /* --- General & Theming --- */
+        :root {
+            --bg-color: #101010;
+            --card-bg-color: #181818;
+            --text-color: #e5e5e5;
+            --text-muted-color: #8c8c8c;
+            --primary-color: #007bff;
+            --primary-hover-color: #0056b3;
+            --border-color: #282828;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --scrollbar-track-color: #101010;
+            --scrollbar-thumb-color: #444;
+            --scrollbar-thumb-hover-color: #555;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+        }
+        
+        /* --- Custom Scrollbar Styling --- */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track-color); }
+        ::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb-color); border-radius: 10px; border: 3px solid var(--scrollbar-track-color); }
+        ::-webkit-scrollbar-thumb:hover { background-color: var(--scrollbar-thumb-hover-color); }
+        html { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color); }
+
+        /* --- Layout & Header --- */
+        .container { max-width: 1600px; margin: 0 auto; width: 100%; }
+        header { display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .title { font-size: 2.5rem; font-weight: 600; margin: 0; color: var(--text-color); white-space: nowrap; }
+
+        /* --- Search Bar --- */
+        .search-form { display: flex; width: 100%; max-width: 600px; }
+        #search-input { width: 100%; flex-grow: 1; min-width: 100px; border: 1px solid var(--border-color); background-color: #222; color: var(--text-color); padding: 0.75rem 1rem; font-size: 1rem; border-radius: 6px 0 0 6px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        #search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
+        #search-button { flex-shrink: 0; border: 1px solid var(--primary-color); background-color: var(--primary-color); color: white; padding: 0 1.5rem; cursor: pointer; border-radius: 0 6px 6px 0; font-size: 1rem; font-weight: 500; transition: background-color 0.2s; }
+        #search-button:hover { background-color: var(--primary-hover-color); }
+        
+        /* --- Header Controls (BEAUTIFIED) --- */
+        .header-controls { 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem;
+            flex-wrap: nowrap; 
+        }
+
+        /* Wrapper for the custom-styled select dropdown */
+        .select-wrapper {
+            position: relative;
+        }
+
+        /* Custom arrow for the select dropdown */
+        .select-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 0.85rem;
+            width: 10px;
+            height: 10px;
+            transform: translateY(-50%);
+            background-color: var(--text-muted-color);
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            mask-size: contain;
+            pointer-events: none;
+            transition: background-color 0.2s ease;
+        }
+        
+        .select-wrapper:hover::after {
+            background-color: var(--text-color);
+        }
+
+        #language-switcher {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-color: #222; 
+            color: var(--text-color);
+            border: 1px solid var(--border-color); 
+            border-radius: 6px;
+            padding: 0.75rem 2.5rem 0.75rem 1rem; /* Space for arrow */
+            font-size: 0.9rem; 
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        #language-switcher:hover {
+            border-color: var(--primary-color);
+        }
+
+        #language-switcher:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        #settings-btn { 
+            background: none; 
+            border: 2px solid var(--text-muted-color); 
+            color: var(--text-muted-color); 
+            font-size: 1.5rem; 
+            cursor: pointer; 
+            width: 48px; 
+            height: 48px; 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            transition: all 0.2s ease; 
+            flex-shrink: 0; 
+        }
+
+        #settings-btn:hover { 
+            color: var(--text-color); 
+            border-color: var(--text-color); 
+            transform: rotate(30deg); 
+        }
+
+        /* --- Poster Wall & Modals --- */
+        .poster-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+        .poster-item { position: relative; background-color: var(--card-bg-color); border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; box-shadow: 0 4px 15px var(--shadow-color); }
+        .poster-item:hover { transform: scale(1.05); box-shadow: 0 8px 30px var(--shadow-color); }
+        .poster-item img { width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; display: block; background-color: var(--border-color); }
+        .poster-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem 1rem 1rem; background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent); text-align: center; }
+        .poster-title { font-size: 1rem; font-weight: 600; margin: 0; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .status-message { grid-column: 1 / -1; text-align: center; color: var(--text-muted-color); font-size: 1.2rem; padding: 5rem 0; }
+        #loader { width: 100%; text-align: center; padding: 2rem; font-size: 1.2rem; color: var--text-muted-color; display: none; }
+        
+        /* --- DIALOG (Modal) STYLES -- CORRECTED --- */
+        dialog {
+            position: fixed;
+            margin: auto; /* Use auto margin for centering */
+            transform: scale(0.95); /* Keep scale for animation */
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 1024px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 0; /* Remove default padding */
+            z-index: 2000;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            color: var(--text-color);
+        }
+        dialog[open] {
+            transform: scale(1); /* Keep scale for animation */
+            opacity: 1;
+        }
+        dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0.85);
+            -webkit-backdrop-filter: blur(2px);
+            backdrop-filter: blur(2px);
+        }
+        .modal-content {
+             display: flex; gap: 2rem; padding: 2rem;
+        }
+        
+        .modal-poster { flex-shrink: 0; width: 250px; display: flex; flex-direction: column; gap: 1rem; }
+        .modal-poster img { width: 100%; border-radius: 8px; }
+        .modal-details { display: flex; flex-direction: column; gap: 1rem; min-width: 0; flex-grow: 1; }
+        .modal-title { font-size: 2.2rem; margin: 0; }
+        .modal-year { font-size: 1.2rem; color: var(--text-muted-color); font-weight: 500; margin-top: -0.5rem; }
+        .modal-overview { line-height: 1.6; color: var(--text-muted-color); max-height: 150px; overflow-y: auto; }
+        .external-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; font-size: 0.9rem; color: var(--text-muted-color); }
+        .external-links a { color: var(--primary-color); text-decoration: none; font-weight: bold; background-color: var(--border-color); padding: 0.25rem 0.75rem; border-radius: 1rem; transition: background-color 0.2s; }
+        .external-links a:hover { background-color: var(--primary-color); color: white; }
+        .modal-actions { margin-top: auto; display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; }
+        .modal-btn { border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: background-color 0.2s; }
+        .copy-btn { background-color: #28a745; color: white; flex-shrink: 0; }
+        .copy-btn:hover { background-color: #218838; }
+        .close-btn { background-color: #dc3545; color: white; }
+        .close-btn:hover { background-color: #c82333; }
+        #filter-tags-container { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+        .filter-tag { background-color: #333; color: var(--text-muted-color); border: 1px solid var(--border-color); padding: 0.3rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-align: center; transition: all 0.2s ease; white-space: nowrap; }
+        .filter-tag:hover { border-color: var(--primary-color); color: var(--text-color); }
+        .filter-tag.active { background-color: var(--primary-color); border-color: var(--primary-color); color: white; font-weight: bold; }
+        .torrents-section { margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; min-height: 250px; max-height: 250px; display: flex; flex-direction: column; }
+        .torrents-heading { margin: 0 0 0.75rem 0; flex-shrink: 0; }
+        #torrent-list-container { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; padding-right: 0.5rem; }
+        
+        /* --- Torrent Item Styles --- */
+        .torrent-item { display: flex; flex-direction: column; background-color: #222; padding: 0.75rem; border-radius: 6px; }
+        .torrent-item-main { display: flex; align-items: center; gap: 0.75rem; width: 100%; }
+        .expand-files-btn { background-color: transparent; border: 1px solid var(--text-muted-color); color: var(--text-muted-color); cursor: pointer; border-radius: 50%; width: 24px; height: 24px; font-size: 16px; line-height: 22px; text-align: center; flex-shrink: 0; transition: all 0.2s; padding: 0; }
+        .expand-files-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .expand-files-placeholder { width: 24px; height: 24px; flex-shrink: 0; }
+        .file-list-container { display: none; margin-top: 0.75rem; padding-left: 2rem; padding-top: 0.75rem; border-top: 1px solid #333; max-height: 150px; overflow-y: auto; font-size: 0.85rem; }
+        .file-list-container ul { list-style-type: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+        .file-list-container li { display: flex; justify-content: space-between; gap: 1rem; color: var(--text-muted-color); }
+        .file-list-container li .file-path { word-break: break-all; }
+        .file-list-container li .file-size { white-space: nowrap; color: var(--text-color); }
+        .torrent-item-details { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.9rem; color: var(--text-muted-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
+        .torrent-item-details span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .torrent-item-details strong { color: var(--text-color); }
+
+        /* --- Settings Modal Styles -- CORRECTED --- */
+        dialog#settings-modal {
+            max-width: 500px;
+        }
+        #settings-modal .modal-content { 
+            display: block; 
+        }
+        #settings-modal .form-group { margin-bottom: 1rem; }
+        #settings-modal .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        #settings-modal .form-group input { width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; font-size: 1rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #333; color: var(--text-color); }
+        #settings-modal .form-group input::placeholder { color: #666; }
+        #settings-modal footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
+
+        #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #28a745; color: #fff; padding: 1rem 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 3000; opacity: 0; transition: bottom 0.5s ease, opacity 0.5s ease; }
+        #toast.show { bottom: 2rem; opacity: 1; }
+        
+        /* --- Base & Mobile-First Media Queries --- */
+        @media (max-width: 1024px) { .header-controls { gap: 0.75rem; } }
+        
+        @media (max-width: 900px) { 
+            .modal-content { flex-direction: column; align-items: center; text-align: center; } 
+            .modal-details, .torrents-section { align-items: center; } 
+            .modal-actions, .external-links { justify-content: center; } 
+        }
+
+        @media (max-width: 768px) { 
+            header { flex-wrap: wrap; row-gap: 1rem; } 
+            .search-form { order: 3; width: 100%; margin: 1rem 0 0; }
+            .torrent-item-details span { white-space: normal; word-break: break-word; }
+            .torrent-item-details > div { white-space: normal; }
+            .expand-files-btn { width: 32px; height: 32px; font-size: 20px; line-height: 30px; }
+            .expand-files-placeholder { width: 32px; height: 32px; }
+            .filter-tag { padding: 0.4rem 0.8rem; }
+        }
+        
+        @media (max-width: 600px) { 
+            body { padding: 1rem; } 
+            .title { font-size: 2rem; } 
+            .poster-wall { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; } 
+            .modal-content { padding: 1.5rem; } 
+            .modal-poster { width: 60%; } 
+            .modal-title { font-size: 1.8rem; }
+            #movie-modal footer, #settings-modal footer { flex-direction: column; }
+            #movie-modal footer .modal-btn, #settings-modal footer .modal-btn { width: 100%; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header translate="no">
+            <h1 class="title" data-translate-key="mainTitle">Movie Wall</h1>
+            <form class="search-form" id="search-form">
+                <input type="search" id="search-input" data-translate-key-placeholder="searchPlaceholder">
+                <button type="submit" id="search-button" data-translate-key="searchButton">Search</button>
+            </form>
+            <nav class="header-controls">
+                <div class="select-wrapper">
+                    <select id="language-switcher" aria-label="Language selector"></select>
+                </div>
+                <button id="settings-btn" title="Settings" data-translate-key-title="settingsTitle">
+                    ⚙️
+                </button>
+            </nav>
+        </header>
+
+        <main>
+            <section id="poster-wall" class="poster-wall" aria-live="polite"></section>
+            <div id="loader" translate="no">Loading...</div>
+        </main>
+    </div>
+
+    <dialog id="movie-modal">
+        <div class="modal-content">
+            <figure class="modal-poster">
+                <img id="modal-poster-img" src="" alt="Movie Poster">
+                <div id="filter-tags-container"></div>
+            </figure>
+            <div class="modal-details">
+                <h2 id="modal-title">Movie Title</h2>
+                <p id="modal-year" class="modal-year">2025</p>
+                <p id="modal-overview">Synopsis of the movie goes here...</p>
+                <div translate="no" id="external-links" class="external-links"></div>
+                <section class="torrents-section" translate="no">
+                    <h3 class="torrents-heading" data-translate-key="availableTorrents">Available Torrents</h3>
+                    <div id="torrent-list-container"></div>
+                </section>
+                <footer class="modal-actions">
+                    <button id="modal-close-btn" class="modal-btn close-btn" data-translate-key="closeButton" translate="no">Close</button>
+                </footer>
+            </div>
+        </div>
+    </dialog>
+    
+    <dialog id="settings-modal">
+        <div class="modal-content">
+            <h2 data-translate-key="settingsTitle" translate="no">Settings</h2>
+            <form id="settings-form">
+                <div class="form-group">
+                    <label for="api-endpoint-input" data-translate-key="apiEndpointLabel" translate="no">API Endpoint URL</label>
+                    <input type="url" id="api-endpoint-input" placeholder="http://localhost:3333/graphql">
+                </div>
+
+                <footer class="modal-actions">
+                    <button id="save-settings-btn" type="submit" class="modal-btn copy-btn" data-translate-key="saveButton" translate="no">Save</button>
+                    <button id="close-settings-btn" type="button" class="modal-btn close-btn" data-translate-key="closeButton" translate="no">Close</button>
+                </footer>
+            </form>
+        </div>
+    </dialog>
+    
+    <div id="toast" role="status" aria-live="polite" translate="no"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const translations = {
+            en: { mainTitle: 'Movie Wall', searchPlaceholder: 'Search for movies...', searchButton: 'Search', settingsTitle: 'Settings', apiEndpointLabel: 'API Endpoint URL', saveButton: 'Save', closeButton: 'Close', availableTorrents: 'Available Torrents', allTag: 'All', copyButton: 'Copy', toastCopied: 'Magnet link copied!', toastFailed: 'Failed to copy.', loading: 'Loading more movies...', endOfResults: "You've reached the end! 🎉", noResults: 'No results found for "{query}".', noMovies: 'No movies could be found.', welcome: 'Welcome! Please set your API Endpoint in Settings (⚙️) to get started.', error: 'An error occurred. Check the console.', errorApi: '⚠️ Please set your API Endpoint in Settings (⚙️).', size: 'Size', seed: 'Seed', leech: 'Leech', res: 'Res', files: 'Files' },
+            zh: { mainTitle: '电影墙', searchPlaceholder: '搜索电影...', searchButton: '搜索', settingsTitle: '设置', apiEndpointLabel: 'API 端点 URL', saveButton: '保存', closeButton: '关闭', availableTorrents: '可用种子', allTag: '全部', copyButton: '复制', toastCopied: '磁力链接已复制!', toastFailed: '复制失败。', loading: '正在加载更多电影...', endOfResults: '已经到底啦！🎉', noResults: '没有找到与 "{query}" 相关的结果。', noMovies: '未能找到任何电影。', welcome: '欢迎使用！请在设置 (⚙️) 中配置您的 API 端点以开始。', error: '发生错误，请检查控制台。', errorApi: '⚠️ 请在设置 (⚙️) 中配置您的 API 端点。', size: '大小', seed: '做种', leech: '下载', res: '分辨率', files: '文件' }
+        };
+
+        let currentLanguage = 'en';
+        let currentOpenModalKey = null;
+        let appSettings = {};
+
+        const translate = (key, replacements = {}) => {
+            let text = (translations[currentLanguage] && translations[currentLanguage][key]) || translations.en[key] || key;
+            for (const placeholder in replacements) { text = text.replace(`{${placeholder}}`, replacements[placeholder]); }
+            return text;
+        };
+
+        const applyTranslations = () => {
+            document.querySelectorAll('[data-translate-key]').forEach(el => { el.textContent = translate(el.dataset.translateKey); });
+            document.querySelectorAll('[data-translate-key-placeholder]').forEach(el => { el.placeholder = translate(el.dataset.translateKeyPlaceholder); });
+            document.querySelectorAll('[data-translate-key-title]').forEach(el => { el.title = translate(el.dataset.translateKeyTitle); });
+            if (currentOpenModalKey) {
+                renderModalContent(); // Re-render modal content to apply language changes
+            }
+        };
+
+        const getInitialLanguage = () => {
+            const savedLang = localStorage.getItem('movieWallLanguage');
+            if (savedLang && translations[savedLang]) return savedLang;
+            const browserLang = navigator.language.split('-')[0];
+            return translations[browserLang] ? browserLang : 'en';
+        };
+
+        const populateLanguageSwitcher = () => {
+            const switcher = doc('language-switcher');
+            switcher.innerHTML = '';
+            Object.keys(translations).forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang;
+                option.textContent = lang.toUpperCase();
+                if (lang === currentLanguage) option.selected = true;
+                switcher.appendChild(option);
+            });
+        };
+        
+        let IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+        const TARGET_POSTER_COUNT = 28;
+        const API_FETCH_LIMIT = 50;
+        let currentApiPage = 1;
+        let currentQueryString = '';
+        let isLoading = false;
+        let allMoviesLoaded = false;
+        let newlyFetchedGroups = [];
+        let groupedMovies = new Map();
+
+        const doc = (id) => document.getElementById(id);
+        const posterWall = doc('poster-wall');
+        const loader = doc('loader');
+        const toast = doc('toast');
+        const searchForm = doc('search-form');
+        const searchInput = doc('search-input');
+        const movieModal = doc('movie-modal');
+        const settingsModal = doc('settings-modal');
+        const settingsBtn = doc('settings-btn');
+        const torrentListContainer = doc('torrent-list-container');
+        const filterTagsContainer = doc('filter-tags-container');
+        const languageSwitcher = doc('language-switcher');
+        
+        const GQL_MOVIE_QUERY = `
+            query MovieSearch($input: TorrentContentSearchQueryInput!) {
+                torrentContent {
+                    search(input: $input) {
+                        items { 
+                            infoHash, title, seeders, leechers, videoResolution, releaseGroup, 
+                            content { releaseYear, overview, attributes { key, value }, externalLinks { url, metadataSource { name } } }, 
+                            torrent { size, magnetUri, filesCount, singleFile } 
+                        }
+                    }
+                }
+            }`;
+        
+        const GQL_FILES_QUERY = `
+            query TorrentFiles($input: TorrentFilesQueryInput!) {
+                torrent {
+                    files(input: $input) { items { path, size } }
+                }
+            }`;
+
+        const callApi = async (query, variables) => {
+            if (!appSettings.apiEndpoint) throw new Error('API_ENDPOINT_NOT_CONFIGURED');
+            const response = await fetch(appSettings.apiEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, variables }), });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await response.json();
+            if (result.errors) { console.error('GraphQL Errors:', result.errors); throw new Error('GraphQL query returned errors.'); }
+            return result.data;
+        };
+        
+        const findPosterPath = (attributes) => attributes?.find(attr => attr.key === 'poster_path')?.value || null;
+
+        const loadMorePosters = async () => {
+            if (isLoading || allMoviesLoaded) return;
+            isLoading = true;
+            showLoader(true);
+            newlyFetchedGroups = [];
+            try {
+                while (newlyFetchedGroups.length < TARGET_POSTER_COUNT && !allMoviesLoaded) {
+                    const searchInputVars = { limit: API_FETCH_LIMIT, offset: (currentApiPage - 1) * API_FETCH_LIMIT, orderBy: currentQueryString ? [{ field: "relevance", descending: true }] : [{ field: "published_at", descending: true }], facets: { contentType: { filter: ["movie"] } } };
+                    if(currentQueryString) searchInputVars.queryString = currentQueryString;
+
+                    const data = await callApi(GQL_MOVIE_QUERY, { input: searchInputVars });
+                    const searchResult = data.torrentContent.search;
+
+                    if (searchResult.items.length === 0) { allMoviesLoaded = true; break; }
+                    
+                    for (const movie of searchResult.items) {
+                        const normalizedTitle = movie.title.trim().toLowerCase();
+                        if (groupedMovies.has(normalizedTitle)) {
+                            groupedMovies.get(normalizedTitle).push(movie);
+                        } else {
+                            groupedMovies.set(normalizedTitle, [movie]);
+                            newlyFetchedGroups.push([movie]);
+                        }
+                    }
+                    currentApiPage++;
+                }
+                if (newlyFetchedGroups.length > 0) renderPosters(newlyFetchedGroups);
+                showLoader(false);
+                if (allMoviesLoaded && newlyFetchedGroups.length === 0) showLoader(true, translate('endOfResults'));
+                
+                if (posterWall.childElementCount === 0 && allMoviesLoaded) {
+                    const message = currentQueryString ? translate('noResults', {query: currentQueryString}) : translate('noMovies');
+                    posterWall.innerHTML = `<p class="status-message" translate="no">${message}</p>`;
+                }
+            } catch (error) {
+                console.error('Failed to fetch movies:', error);
+                const msg = (error.message === 'API_ENDPOINT_NOT_CONFIGURED') ? translate('errorApi') : translate('error');
+                posterWall.innerHTML = `<p class="status-message" translate="no">${msg}</p>`;
+            } finally {
+                isLoading = false;
+            }
+        };
+
+        const performSearch = () => {
+            const query = searchInput.value.trim();
+            if (query === currentQueryString) return;
+            currentQueryString = query;
+            posterWall.innerHTML = '';
+            
+            currentApiPage = 1;
+            newlyFetchedGroups = [];
+            groupedMovies.clear();
+            allMoviesLoaded = false;
+            document.querySelector('.title').textContent = translate('mainTitle');
+            loadMorePosters();
+        };
+
+        const renderPosters = (movieGroups) => {
+            const fragment = document.createDocumentFragment();
+            movieGroups.forEach(group => {
+                const representativeMovie = group.find(m => findPosterPath(m.content?.attributes)) || group[0];
+                const posterPath = findPosterPath(representativeMovie.content?.attributes);
+                if (!posterPath) return;
+                const item = document.createElement('article'); // Semantic Change
+                item.className = 'poster-item';
+                item.dataset.titleKey = representativeMovie.title.trim().toLowerCase();
+                item.innerHTML = `<img src="${IMAGE_BASE_URL}${posterPath}" alt="${representativeMovie.title}" loading="lazy"><div class="poster-overlay"><h3 class="poster-title">${representativeMovie.title}</h3></div>`;
+                fragment.appendChild(item);
+            });
+            posterWall.appendChild(fragment);
+        };
+        
+        const formatBytes = (bytes, decimals = 2) => {
+            if (!bytes || bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        };
+
+        const showLoader = (show, message = translate('loading')) => {
+            loader.textContent = message;
+            loader.style.display = show ? 'block' : 'none';
+        }
+
+        const openModal = (titleKey) => {
+            currentOpenModalKey = titleKey;
+            renderModalContent();
+            movieModal.showModal(); // Use native dialog method
+            document.body.style.overflow = 'hidden';
+        };
+        
+        const renderModalContent = () => {
+            if(!currentOpenModalKey) return;
+            const movieGroup = groupedMovies.get(currentOpenModalKey);
+            if (!movieGroup || movieGroup.length === 0) return;
+
+            movieGroup.sort((a, b) => (b.torrent?.size ?? 0) - (a.torrent?.size ?? 0));
+            const primaryMovie = movieGroup.find(m => findPosterPath(m.content?.attributes)) || movieGroup[0];
+            
+            doc('modal-title').textContent = primaryMovie.title;
+            doc('modal-overview').textContent = primaryMovie.content.overview || '';
+            doc('modal-poster-img').src = findPosterPath(primaryMovie.content.attributes) ? `${IMAGE_BASE_URL}${findPosterPath(primaryMovie.content.attributes)}` : '';
+            doc('modal-year').textContent = primaryMovie.content.releaseYear || 'N/A';
+            doc('external-links').innerHTML = (primaryMovie.content.externalLinks || []).map(link => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.metadataSource.name}</a>`).join('');
+            
+            const resolutions = new Set(movieGroup.map(m => m.videoResolution).filter(Boolean));
+            filterTagsContainer.innerHTML = '';
+            if (resolutions.size > 1) {
+                const allTag = document.createElement('button');
+                allTag.className = 'filter-tag active';
+                allTag.textContent = translate('allTag');
+                allTag.dataset.filter = 'all';
+                allTag.setAttribute('translate', 'no');
+                filterTagsContainer.appendChild(allTag);
+                
+                Array.from(resolutions).sort().forEach(res => {
+                    const resTag = document.createElement('button');
+                    resTag.className = 'filter-tag';
+                    resTag.textContent = res.replace('V', '');
+                    resTag.dataset.filter = res;
+                    filterTagsContainer.appendChild(resTag);
+                });
+            }
+
+            torrentListContainer.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+            movieGroup.forEach(torrent => {
+                const itemDiv = document.createElement('article'); // Semantic Change
+                itemDiv.className = 'torrent-item';
+                itemDiv.dataset.resolution = torrent.videoResolution || 'unknown';
+
+                const filesCount = torrent.torrent.filesCount;
+                const isSingleFile = torrent.torrent.singleFile || filesCount === 1;
+
+                const details = [
+                    `<strong translate="no">${translate('size')}:</strong> ${formatBytes(torrent.torrent.size)}`,
+                    `<strong translate="no">${translate('seed')}:</strong> ${torrent.seeders ?? 'N/A'}`,
+                    `<strong translate="no">${translate('leech')}:</strong> ${torrent.leechers ?? 'N/A'}`
+                ];
+                if (torrent.videoResolution) details.push(`<strong translate="no">${translate('res')}:</strong> ${torrent.videoResolution.replace('V','')}`);
+                if (filesCount) details.push(`<strong translate="no">${translate('files')}:</strong> ${filesCount}`);
+
+                let expandButtonHTML = !isSingleFile && filesCount > 1
+                    ? `<button class="expand-files-btn" data-infohash="${torrent.infoHash}" title="Show files">+</button>`
+                    : `<span class="expand-files-placeholder"></span>`;
+                
+                itemDiv.innerHTML = `
+                    <div class="torrent-item-main">
+                        ${expandButtonHTML}
+                        <div class="torrent-item-details" title="${torrent.title}">
+                            <span>${torrent.title}</span>
+                            <div>${details.join(' | ')}</div>
+                        </div>
+                        <button class="modal-btn copy-btn torrent-copy-btn" translate="no">${translate('copyButton')}</button>
+                    </div>
+                    <div class="file-list-container"></div>`;
+
+                itemDiv.querySelector('.torrent-copy-btn').dataset.magnet = torrent.torrent.magnetUri;
+                fragment.appendChild(itemDiv);
+            });
+            torrentListContainer.appendChild(fragment);
+        };
+        
+        const closeModal = () => {
+            movieModal.close(); // Use native dialog method
+            document.body.style.overflow = 'auto';
+            currentOpenModalKey = null;
+        };
+
+        const showToast = (message) => {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2000);
+        };
+        
+        const loadSettings = () => {
+            appSettings = {
+                apiEndpoint: localStorage.getItem('apiEndpoint') || ''
+            };
+            doc('api-endpoint-input').value = appSettings.apiEndpoint;
+        };
+        
+        const saveSettings = () => {
+            localStorage.setItem('apiEndpoint', doc('api-endpoint-input').value.trim());
+            location.reload();
+        };
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            performSearch();
+        });
+
+        posterWall.addEventListener('click', (e) => { 
+            const item = e.target.closest('.poster-item'); 
+            if (item) openModal(item.dataset.titleKey); 
+        });
+        
+        window.addEventListener('scroll', () => { 
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) loadMorePosters(); 
+        });
+        
+        doc('modal-close-btn').addEventListener('click', closeModal);
+        movieModal.addEventListener('click', (e) => { 
+            // Close dialog if user clicks on the backdrop
+            const rect = movieModal.getBoundingClientRect();
+            const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height
+                && rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+            if (!isInDialog) {
+                closeModal();
+            }
+        });
+        
+        torrentListContainer.addEventListener('click', async (e) => {
+            const copyBtn = e.target.closest('.torrent-copy-btn');
+            if (copyBtn) {
+                navigator.clipboard.writeText(copyBtn.dataset.magnet)
+                    .then(() => showToast(translate('toastCopied')))
+                    .catch(() => showToast(translate('toastFailed')));
+                return;
+            }
+
+            const expandBtn = e.target.closest('.expand-files-btn');
+            if (expandBtn) {
+                const torrentItem = expandBtn.closest('.torrent-item');
+                const fileListContainer = torrentItem.querySelector('.file-list-container');
+                const infoHash = expandBtn.dataset.infohash;
+                const isVisible = fileListContainer.style.display === 'block';
+
+                fileListContainer.style.display = isVisible ? 'none' : 'block';
+                expandBtn.textContent = isVisible ? '+' : '−';
+                expandBtn.title = isVisible ? 'Show files' : 'Hide files';
+
+                if (!isVisible && !fileListContainer.hasAttribute('data-loaded')) {
+                    fileListContainer.innerHTML = '<ul><li>Loading files...</li></ul>';
+                    try {
+                        const fileData = await callApi(GQL_FILES_QUERY, { input: { infoHashes: [infoHash] } });
+                        const files = fileData?.torrent?.files?.items;
+
+                        if (files && files.length > 0) {
+                            fileListContainer.innerHTML = `<ul>${files.map(file => `
+                                <li>
+                                    <span class="file-path">${file.path}</span>
+                                    <span class="file-size">${formatBytes(file.size)}</span>
+                                </li>`).join('')}</ul>`;
+                        } else {
+                            fileListContainer.innerHTML = '<ul><li>Could not retrieve file list.</li></ul>';
+                        }
+                        fileListContainer.setAttribute('data-loaded', 'true');
+                    } catch (error) {
+                        console.error('Failed to fetch torrent files:', error);
+                        fileListContainer.innerHTML = '<ul><li>Error loading files.</li></ul>';
+                    }
+                }
+            }
+        });
+
+        filterTagsContainer.addEventListener('click', (e) => {
+            const clickedTag = e.target.closest('.filter-tag');
+            if (!clickedTag) return;
+            filterTagsContainer.querySelector('.active')?.classList.remove('active');
+            clickedTag.classList.add('active');
+            const filterValue = clickedTag.dataset.filter;
+            torrentListContainer.querySelectorAll('.torrent-item').forEach(item => {
+                item.style.display = (filterValue === 'all' || item.dataset.resolution === filterValue) ? 'flex' : 'none';
+            });
+        });
+
+        languageSwitcher.addEventListener('change', (e) => {
+            currentLanguage = e.target.value;
+            localStorage.setItem('movieWallLanguage', currentLanguage);
+            applyTranslations();
+        });
+        
+        settingsBtn.addEventListener('click', () => settingsModal.showModal());
+        doc('close-settings-btn').addEventListener('click', () => settingsModal.close());
+        settingsModal.addEventListener('click', (e) => { 
+            const rect = settingsModal.getBoundingClientRect();
+            const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height
+                && rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+            if (!isInDialog) {
+                settingsModal.close();
+            }
+        });
+        doc('settings-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            saveSettings();
+        });
+
+        const init = () => {
+            loadSettings();
+            currentLanguage = getInitialLanguage();
+            populateLanguageSwitcher();
+            applyTranslations();
+
+            if (appSettings.apiEndpoint) {
+                loadMorePosters();
+            } else {
+                posterWall.innerHTML = `<p class="status-message" translate="no">${translate('welcome')}</p>`;
+            }
+        };
+
+        init();
+    });
+    </script>
+</body>
+</html>
