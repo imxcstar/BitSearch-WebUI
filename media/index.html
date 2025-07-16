@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media</title>
+    <style>
+        /* --- General & Theming --- */
+        :root {
+            --bg-color: #101010;
+            --card-bg-color: #181818;
+            --text-color: #e5e5e5;
+            --text-muted-color: #8c8c8c;
+            --primary-color: #007bff;
+            --primary-hover-color: #0056b3;
+            --border-color: #282828;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --scrollbar-track-color: #101010;
+            --scrollbar-thumb-color: #444;
+            --scrollbar-thumb-hover-color: #555;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+        }
+        
+        /* --- Custom Scrollbar Styling --- */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track-color); }
+        ::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb-color); border-radius: 10px; border: 3px solid var(--scrollbar-track-color); }
+        ::-webkit-scrollbar-thumb:hover { background-color: var(--scrollbar-thumb-hover-color); }
+        html { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color); }
+
+        /* --- Layout & Header --- */
+        .container { max-width: 1600px; margin: 0 auto; width: 100%; }
+        header { display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
+        .title-section { display: flex; align-items: center; gap: 1.5rem; }
+        .title { font-size: 2.5rem; font-weight: 600; margin: 0; color: var(--text-color); white-space: nowrap; }
+
+        /* --- Mode Switcher --- */
+        .mode-switcher { display: flex; background-color: #222; border-radius: 8px; padding: 4px; border: 1px solid var(--border-color); }
+        .mode-btn { background: none; border: none; color: var(--text-muted-color); padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .mode-btn.active { background-color: var(--primary-color); color: white; font-weight: 600; }
+        .mode-btn:not(.active):hover { background-color: #333; color: var(--text-color); }
+        
+        /* --- Search Bar --- */
+        .search-form { display: flex; width: 100%; max-width: 600px; flex-grow: 1; }
+        #search-input { width: 100%; flex-grow: 1; min-width: 100px; border: 1px solid var(--border-color); background-color: #222; color: var(--text-color); padding: 0.75rem 1rem; font-size: 1rem; border-radius: 6px 0 0 6px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        #search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
+        #search-button { flex-shrink: 0; border: 1px solid var(--primary-color); background-color: var(--primary-color); color: white; padding: 0 1.5rem; cursor: pointer; border-radius: 0 6px 6px 0; font-size: 1rem; font-weight: 500; transition: background-color 0.2s; }
+        #search-button:hover { background-color: var(--primary-hover-color); }
+        
+        /* --- Header Controls --- */
+        .header-controls { display: flex; align-items: center; gap: 1rem; flex-wrap: nowrap; }
+        .select-wrapper { position: relative; }
+        .select-wrapper::after {
+            content: ''; position: absolute; top: 50%; right: 0.85rem; width: 10px; height: 10px;
+            transform: translateY(-50%); background-color: var(--text-muted-color);
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            mask-size: contain; pointer-events: none; transition: background-color 0.2s ease;
+        }
+        .select-wrapper:hover::after { background-color: var(--text-color); }
+        #language-switcher {
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            background-color: #222; color: var(--text-color); border: 1px solid var(--border-color); border-radius: 6px;
+            padding: 0.75rem 2.5rem 0.75rem 1rem; font-size: 0.9rem; font-weight: 500; cursor: pointer; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        #language-switcher:hover { border-color: var(--primary-color); }
+        #language-switcher:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
+        #settings-btn { 
+            background: none; border: 2px solid var(--text-muted-color); color: var(--text-muted-color); 
+            font-size: 1.5rem; cursor: pointer; width: 48px; height: 48px; border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center; transition: all 0.2s ease; flex-shrink: 0; 
+        }
+        #settings-btn:hover { color: var(--text-color); border-color: var(--text-color); transform: rotate(30deg); }
+
+        /* --- Poster Wall & Statuses --- */
+        .poster-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+        .poster-item { position: relative; background-color: var(--card-bg-color); border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; box-shadow: 0 4px 15px var(--shadow-color); }
+        .poster-item:hover { transform: scale(1.05); box-shadow: 0 8px 30px var(--shadow-color); }
+        .poster-item img { width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; display: block; background-color: var(--border-color); }
+        .poster-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 2rem 1rem 1rem; background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent); text-align: center; }
+        .poster-title { font-size: 1rem; font-weight: 600; margin: 0; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .status-message { grid-column: 1 / -1; text-align: center; color: var(--text-muted-color); font-size: 1.2rem; padding: 5rem 0; }
+        #loader { width: 100%; text-align: center; padding: 2rem; font-size: 1.2rem; color: var--text-muted-color; display: none; }
+        
+        /* --- DIALOG (Modal) STYLES --- */
+        dialog {
+            position: fixed; margin: auto; transform: scale(0.95);
+            background: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); width: 90%; max-width: 1024px; max-height: 90vh;
+            overflow-y: auto; padding: 0; z-index: 2000; transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0; color: var(--text-color);
+        }
+        dialog[open] { transform: scale(1); opacity: 1; }
+        dialog::backdrop { background-color: rgba(0, 0, 0, 0.85); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+        .modal-content { display: flex; gap: 2rem; padding: 2rem; }
+        .modal-poster { flex-shrink: 0; width: 250px; display: flex; flex-direction: column; gap: 1rem; }
+        .modal-poster img { width: 100%; border-radius: 8px; }
+        .modal-details { display: flex; flex-direction: column; gap: 1rem; min-width: 0; flex-grow: 1; }
+        .modal-title { font-size: 2.2rem; margin: 0; }
+        .modal-year { font-size: 1.2rem; color: var(--text-muted-color); font-weight: 500; margin-top: -0.5rem; }
+        .modal-episodes { font-size: 1.1rem; color: var(--primary-color); font-weight: 500; margin: 0.25rem 0; display: none; }
+        .modal-overview { line-height: 1.6; color: var(--text-muted-color); max-height: 150px; overflow-y: auto; }
+        .external-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; font-size: 0.9rem; color: var(--text-muted-color); }
+        .external-links a { color: var(--primary-color); text-decoration: none; font-weight: bold; background-color: var(--border-color); padding: 0.25rem 0.75rem; border-radius: 1rem; transition: background-color 0.2s; }
+        .external-links a:hover { background-color: var(--primary-color); color: white; }
+        .modal-actions { margin-top: auto; display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; }
+        .modal-btn { border: none; padding: 0.75rem 1.5rem; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: background-color 0.2s; }
+        .copy-btn { background-color: #28a745; color: white; flex-shrink: 0; }
+        .copy-btn:hover { background-color: #218838; }
+        .close-btn { background-color: #dc3545; color: white; }
+        .close-btn:hover { background-color: #c82333; }
+        
+        /* --- Filters --- */
+        .filter-tags-container { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+        .filter-tag { background-color: #333; color: var(--text-muted-color); border: 1px solid var(--border-color); padding: 0.3rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-align: center; transition: all 0.2s ease; white-space: nowrap; }
+        .filter-tag:hover { border-color: var(--primary-color); color: var(--text-color); }
+        .filter-tag.active { background-color: var(--primary-color); border-color: var(--primary-color); color: white; font-weight: bold; }
+        
+        /* --- Torrents Section & TV-Specific Season Filter --- */
+        .torrents-section { margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; display: flex; flex-direction: column; }
+        .torrents-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem; }
+        .torrents-heading { margin: 0; flex-shrink: 0; }
+        #season-filter-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        #torrent-list-container { flex-grow: 1; display: flex; flex-direction: column; gap: 0.75rem; text-align: left; }
+        .torrent-list-status { color: var(--text-muted-color); padding: 2rem 0; text-align: center; }
+        
+        /* --- Torrent Item & Group Styles --- */
+        .torrent-item { display: flex; flex-direction: column; background-color: #222; padding: 0.75rem; border-radius: 6px; }
+        .torrent-item-main { display: flex; align-items: center; gap: 0.75rem; width: 100%; }
+        .torrent-group { display: flex; flex-direction: column; background-color: #2a2a2a; border-radius: 6px; overflow: hidden; border: 1px solid #333; }
+        .torrent-group-header { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; cursor: pointer; background-color: #222; transition: background-color 0.2s; }
+        .torrent-group-header:hover { background-color: #333; }
+        .expand-group-btn { background-color: transparent; border: 1px solid var(--text-muted-color); color: var(--text-muted-color); cursor: pointer; border-radius: 50%; width: 24px; height: 24px; font-size: 16px; line-height: 22px; text-align: center; flex-shrink: 0; transition: all 0.2s; padding: 0; user-select: none; }
+        .expand-group-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .torrent-group-title {
+            flex-grow: 1;
+            font-weight: 500;
+            white-space: normal;
+            word-break: break-word;
+        }
+        .torrent-group-meta { font-size: 0.9rem; color: var(--text-muted-color); white-space: nowrap; }
+        .torrent-group-body {
+            display: none;
+            padding: 0.5rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .torrent-group-body .torrent-item { background-color: #2c2c2c; box-shadow: none; border: 1px solid #383838; }
+
+        .expand-files-btn { background-color: transparent; border: 1px solid var(--text-muted-color); color: var(--text-muted-color); cursor: pointer; border-radius: 50%; width: 24px; height: 24px; font-size: 16px; line-height: 22px; text-align: center; flex-shrink: 0; transition: all 0.2s; padding: 0; }
+        .expand-files-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .expand-files-placeholder { width: 24px; height: 24px; flex-shrink: 0; }
+        .file-list-container { display: none; margin-top: 0.75rem; padding-left: 2rem; padding-top: 0.75rem; border-top: 1px solid #333; max-height: 150px; overflow-y: auto; font-size: 0.85rem; }
+        .file-list-container ul { list-style-type: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+        .file-list-container li { display: flex; justify-content: space-between; gap: 1rem; color: var(--text-muted-color); }
+        .file-list-container li .file-path { word-break: break-all; }
+        .file-list-container li .file-size { white-space: nowrap; color: var(--text-color); }
+        .torrent-item-details { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.9rem; color: var(--text-muted-color); min-width: 0; flex-grow: 1; }
+        .torrent-item-details span {
+            white-space: normal;
+            word-break: break-word;
+        }
+        .torrent-item-details strong { color: var(--text-color); }
+        .torrent-item-details > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+
+        /* --- Settings Modal Styles --- */
+        dialog#settings-modal { max-width: 500px; }
+        #settings-modal .modal-content { display: block; }
+        #settings-modal .form-group { margin-bottom: 1rem; }
+        #settings-modal .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        #settings-modal .form-group input { width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; font-size: 1rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #333; color: var(--text-color); }
+        #settings-modal footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
+
+        /* Toast Notification */
+        #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #28a745; color: #fff; padding: 1rem 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 3000; opacity: 0; transition: bottom 0.5s ease, opacity 0.5s ease; }
+        #toast.show { bottom: 2rem; opacity: 1; }
+        
+        /* --- Media Queries --- */
+        @media (max-width: 1024px) {
+            .title-section { 
+                order: 0; 
+            }
+            .header-controls { 
+                gap: 0.75rem; 
+                order: 1; 
+            }
+            .search-form { 
+                order: 2; 
+                width: 100%; 
+                margin-top: 1rem; 
+            }
+        }
+        @media (max-width: 900px) { .modal-content { flex-direction: column; align-items: center; text-align: center; } .modal-details, .torrents-section { align-items: center; } .modal-actions, .external-links { justify-content: center; } }
+        @media (max-width: 768px) { 
+            header { row-gap: 1rem; } 
+            .search-form { order: 3; width: 100%; margin-top: 1rem; margin-bottom: 0; }
+            .title-section { flex-wrap: wrap; gap: 1rem; }
+            .torrent-item-details > div { white-space: normal; word-break: break-word; }
+            .expand-files-btn { width: 32px; height: 32px; font-size: 20px; line-height: 30px; }
+            .expand-files-placeholder { width: 32px; height: 32px; }
+        }
+        @media (max-width: 600px) { 
+            body { padding: 1rem; } .title { font-size: 2rem; } 
+            .poster-wall { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; } 
+            .modal-content { padding: 1.5rem; } .modal-poster { width: 60%; } .modal-title { font-size: 1.8rem; }
+            #details-modal footer, #settings-modal footer { flex-direction: column; }
+            #details-modal footer .modal-btn, #settings-modal footer .modal-btn { width: 100%; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header translate="no">
+            <div class="title-section">
+                <nav class="mode-switcher">
+                    <button id="mode-btn-movie" class="mode-btn" data-mode="movie"></button>
+                    <button id="mode-btn-tv" class="mode-btn" data-mode="tv"></button>
+                </nav>
+            </div>
+            <form class="search-form" id="search-form">
+                <input type="search" id="search-input">
+                <button type="submit" id="search-button"></button>
+            </form>
+            <nav class="header-controls">
+                <div class="select-wrapper">
+                    <select id="language-switcher" aria-label="Language selector"></select>
+                </div>
+                <button id="settings-btn" title="Settings">⚙️</button>
+            </nav>
+        </header>
+
+        <main>
+            <section id="poster-wall" class="poster-wall" aria-live="polite"></section>
+            <div id="loader" translate="no">Loading...</div>
+        </main>
+    </div>
+
+    <dialog id="details-modal">
+        <div class="modal-content">
+            <figure class="modal-poster">
+                <img id="modal-poster-img" src="" alt="Poster">
+                <div id="filter-tags-container" class="filter-tags-container"></div>
+            </figure>
+            <div class="modal-details">
+                <h2 id="modal-title">Title</h2>
+                <p id="modal-year" class="modal-year">2025</p>
+                <p id="modal-episodes" class="modal-episodes"></p>
+                <p id="modal-overview">Synopsis goes here...</p>
+                <div translate="no" id="external-links" class="external-links"></div>
+                <section class="torrents-section" translate="no">
+                    <div class="torrents-header">
+                        <h3 id="torrents-heading" class="torrents-heading"></h3>
+                        <div id="season-filter-container"></div>
+                    </div>
+                    <div id="torrent-list-container"></div>
+                </section>
+                <footer class="modal-actions">
+                    <button id="modal-close-btn" class="modal-btn close-btn" translate="no">Close</button>
+                </footer>
+            </div>
+        </div>
+    </dialog>
+    
+    <dialog id="settings-modal">
+        <div class="modal-content">
+            <h2 id="settings-title"></h2>
+            <form id="settings-form">
+                <div class="form-group">
+                    <label for="api-endpoint-input" id="api-endpoint-label"></label>
+                    <input type="url" id="api-endpoint-input" placeholder="http://localhost:3333/graphql">
+                </div>
+                <footer class="modal-actions">
+                    <button id="save-settings-btn" type="submit" class="modal-btn copy-btn"></button>
+                    <button id="close-settings-btn" type="button" class="modal-btn close-btn"></button>
+                </footer>
+            </form>
+        </div>
+    </dialog>
+    
+    <div id="toast" role="status" aria-live="polite" translate="no"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const translations = {
+            en: {
+                media: 'Media',
+                movie: 'Movies', tv: 'TV Shows',
+                movieSearchPlaceholder: 'Search for movies...', tvSearchPlaceholder: 'Search for TV shows...',
+                movieNoItems: 'No movies could be found.', tvNoItems: 'No TV shows could be found.',
+                movieLoading: 'Loading more movies...', tvLoading: 'Loading more shows...',
+                searchButton: 'Search', settingsTitle: 'Settings', apiEndpointLabel: 'API Endpoint URL',
+                saveButton: 'Save', closeButton: 'Close', availableTorrents: 'Available Torrents',
+                allTag: 'All', copyButton: 'Copy', toastCopied: 'Magnet link copied!', toastFailed: 'Failed to copy.',
+                endOfResults: "You've reached the end! 🎉", noResults: 'No results found for "{query}".',
+                noResultsForFilter: 'No torrents match the current filters.',
+                welcome: 'Welcome! Please set your API Endpoint in Settings (⚙️) to get started.',
+                error: 'An error occurred. Check the console.', errorApi: '⚠️ Please set your API Endpoint in Settings (⚙️).',
+                size: 'Size', seed: 'Seed', leech: 'Leech', res: 'Res', files: 'Files',
+                episodesLabel: '{count} episodes available',
+                loading: 'Loading...'
+            },
+            zh: {
+                media: '媒体',
+                movie: '电影', tv: '电视剧',
+                movieSearchPlaceholder: '搜索电影...', tvSearchPlaceholder: '搜索电视剧...',
+                movieNoItems: '未能找到任何电影。', tvNoItems: '未能找到任何电视剧。',
+                movieLoading: '正在加载更多电影...', tvLoading: '正在加载更多剧集...',
+                searchButton: '搜索', settingsTitle: '设置', apiEndpointLabel: 'API 端点 URL',
+                saveButton: '保存', closeButton: '关闭', availableTorrents: '可用种子',
+                allTag: '全部', copyButton: '复制', toastCopied: '磁力链接已复制!', toastFailed: '复制失败。',
+                endOfResults: '已经到底啦！🎉', noResults: '没有找到与 "{query}" 相关的结果。',
+                noResultsForFilter: '没有符合当前筛选条件的种子。',
+                welcome: '欢迎使用！请在设置 (⚙️) 中配置您的 API 端点以开始。',
+                error: '发生错误，请检查控制台。', errorApi: '⚠️ 请在设置 (⚙️) 中配置您的 API 端点。',
+                size: '大小', seed: '做种', leech: '下载', res: '分辨率', files: '文件',
+                episodesLabel: '共 {count} 集可用',
+                loading: '加载中...'
+            }
+        };
+
+        let currentLanguage = 'en';
+        let currentMode = 'movie'; // 'movie' or 'tv'
+        let appSettings = {};
+
+        const translate = (key, replacements = {}) => {
+            let text = (translations[currentLanguage] && translations[currentLanguage][key]) || translations.en[key] || key;
+            for (const placeholder in replacements) { text = text.replace(`{${placeholder}}`, replacements[placeholder]); }
+            return text;
+        };
+
+        const applyTranslations = () => {
+            document.title = translate('media');
+            doc('mode-btn-movie').textContent = translate('movie');
+            doc('mode-btn-tv').textContent = translate('tv');
+            doc('search-button').textContent = translate('searchButton');
+            doc('settings-btn').title = translate('settingsTitle');
+            doc('settings-title').textContent = translate('settingsTitle');
+            doc('api-endpoint-label').textContent = translate('apiEndpointLabel');
+            doc('save-settings-btn').textContent = translate('saveButton');
+            doc('close-settings-btn').textContent = translate('closeButton');
+            doc('modal-close-btn').textContent = translate('closeButton');
+            doc('torrents-heading').textContent = translate('availableTorrents');
+            doc('search-input').placeholder = translate(`${currentMode}SearchPlaceholder`);
+        };
+
+        const getInitialLanguage = () => {
+            const savedLang = localStorage.getItem('mediaWallLanguage');
+            if (savedLang && translations[savedLang]) return savedLang;
+            const browserLang = navigator.language.split('-')[0];
+            return translations[browserLang] ? browserLang : 'en';
+        };
+
+        const populateLanguageSwitcher = () => {
+            const switcher = doc('language-switcher');
+            switcher.innerHTML = '';
+            Object.keys(translations).forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang; option.textContent = lang.toUpperCase();
+                if (lang === currentLanguage) option.selected = true;
+                switcher.appendChild(option);
+            });
+        };
+        
+        const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+        const TARGET_POSTER_COUNT = 28;
+        const API_FETCH_LIMIT = 50;
+        let currentApiPage = 1;
+        let currentQueryString = '';
+        let isLoading = false;
+        let allItemsLoaded = false;
+        let groupedItems = new Map();
+
+        const doc = (id) => document.getElementById(id);
+        const posterWall = doc('poster-wall'), loader = doc('loader'), toast = doc('toast');
+        const searchForm = doc('search-form'), searchInput = doc('search-input');
+        const detailsModal = doc('details-modal');
+        const torrentListContainer = doc('torrent-list-container');
+        const filterTagsContainer = doc('filter-tags-container');
+        
+        const GQL_QUERY = `
+            query ContentSearch($input: TorrentContentSearchQueryInput!) {
+                torrentContent {
+                    search(input: $input) {
+                        items { 
+                            contentId, contentSource, infoHash, title, seeders, leechers, videoResolution, releaseGroup, 
+                            content { title, releaseYear, overview, attributes { key, value }, externalLinks { url, metadataSource { name } } }, 
+                            torrent { size, magnetUri, filesCount, singleFile },
+                            episodes { label, seasons { season } }
+                        }
+                    }
+                }
+            }`;
+        
+        const GQL_FILES_QUERY = `
+            query TorrentFiles($input: TorrentFilesQueryInput!) {
+                torrent { files(input: $input) { items { path, size } } }
+            }`;
+
+        const callApi = async (query, variables) => {
+            if (!appSettings.apiEndpoint) throw new Error('API_ENDPOINT_NOT_CONFIGURED');
+            const response = await fetch(appSettings.apiEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query, variables }), });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await response.json();
+            if (result.errors) { console.error('GraphQL Errors:', result.errors); throw new Error('GraphQL query returned errors.'); }
+            return result.data;
+        };
+        
+        const findPosterPath = (attributes) => attributes?.find(attr => attr.key === 'poster_path')?.value || null;
+
+        const getItemKey = (item) => {
+            // TV show logic remains unchanged
+            if (currentMode === 'tv') {
+                if (item.contentId && item.contentSource) {
+                    return `tv:${item.contentSource}:${item.contentId}`;
+                }
+                const title = item.content?.title || item.title;
+                return `tv:${title.replace(/s\d{1,2}.*/i, '').trim().toLowerCase()}`;
+            }
+
+            // New Movie Logic: Prioritize ID, then Title+Year, then just Title
+            if (currentMode === 'movie') {
+                // Priority 1: Use content source and ID (e.g., tmdb:12345)
+                if (item.contentId && item.contentSource) {
+                    return `movie:${item.contentSource}:${item.contentId}`;
+                }
+                // Priority 2: Use title and year if no ID is available
+                const title = item.content?.title || item.title;
+                const year = item.content?.releaseYear;
+                if (title && year) {
+                    return `movie:${title.trim().toLowerCase()}:${year}`;
+                }
+                // Fallback: Use only the title
+                const fallbackTitle = item.content?.title || item.title;
+                return `movie:${fallbackTitle.trim().toLowerCase()}`;
+            }
+            
+            // Generic fallback (should not be reached if mode is always movie/tv)
+            return (item.content?.title || item.title).trim().toLowerCase();
+        };
+
+        const resetAndLoad = () => {
+            posterWall.innerHTML = '';
+            currentApiPage = 1;
+            groupedItems.clear();
+            allItemsLoaded = false;
+            loadMoreItems();
+        };
+
+        const loadMoreItems = async () => {
+            if (isLoading || allItemsLoaded) return;
+            isLoading = true;
+            showLoader(true);
+            try {
+                const contentType = currentMode === 'movie' ? 'movie' : 'tv_show';
+                const searchInputVars = {
+                    limit: API_FETCH_LIMIT, offset: (currentApiPage - 1) * API_FETCH_LIMIT,
+                    orderBy: currentQueryString ? [{ field: "relevance", descending: true }] : [{ field: "published_at", descending: true }],
+                    facets: { contentType: { filter: [contentType] } }
+                };
+                if(currentQueryString) searchInputVars.queryString = currentQueryString;
+
+                const data = await callApi(GQL_QUERY, { input: searchInputVars });
+                const searchResult = data.torrentContent.search;
+                const fetchedItems = searchResult.items;
+
+                if (fetchedItems.length === 0) { allItemsLoaded = true; }
+                
+                const newGroups = [];
+                for (const item of fetchedItems) {
+                    const key = getItemKey(item);
+                    if (groupedItems.has(key)) {
+                        groupedItems.get(key).push(item);
+                    } else {
+                        const newGroup = [item];
+                        groupedItems.set(key, newGroup);
+                        newGroups.push(newGroup);
+                    }
+                }
+
+                if (newGroups.length > 0) renderPosters(newGroups);
+                currentApiPage++;
+
+                showLoader(false);
+                if (allItemsLoaded) showLoader(true, translate('endOfResults'));
+                
+                if (posterWall.childElementCount === 0 && allItemsLoaded) {
+                    const message = currentQueryString ? translate('noResults', {query: currentQueryString}) : translate(`${currentMode}NoItems`);
+                    posterWall.innerHTML = `<p class="status-message">${message}</p>`;
+                }
+            } catch (error) {
+                console.error('Failed to fetch items:', error);
+                const msg = (error.message === 'API_ENDPOINT_NOT_CONFIGURED') ? translate('errorApi') : translate('error');
+                posterWall.innerHTML = `<p class="status-message">${msg}</p>`;
+            } finally {
+                isLoading = false;
+            }
+        };
+
+        const renderPosters = (itemGroups) => {
+            const fragment = document.createDocumentFragment();
+            itemGroups.forEach(group => {
+                const representativeItem = group.find(m => findPosterPath(m.content?.attributes)) || group[0];
+                const posterPath = findPosterPath(representativeItem.content?.attributes);
+                if (!posterPath) return;
+
+                const item = document.createElement('article');
+                item.className = 'poster-item';
+                item.dataset.itemKey = getItemKey(representativeItem);
+                
+                const baseTitle = representativeItem.content?.title || representativeItem.title;
+                let displayTitle = baseTitle;
+
+                if (currentMode === 'movie') {
+                    const year = representativeItem.content?.releaseYear;
+                    if (year) {
+                        displayTitle = `${baseTitle} (${year})`;
+                    }
+                }
+                
+                item.innerHTML = `<img src="${IMAGE_BASE_URL}${posterPath}" alt="${displayTitle}" loading="lazy"><div class="poster-overlay"><h3 class="poster-title">${displayTitle}</h3></div>`;
+                fragment.appendChild(item);
+            });
+            posterWall.appendChild(fragment);
+        };
+        
+        const formatBytes = (bytes, decimals = 2) => {
+            if (!bytes || bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        };
+
+        const showLoader = (show, message = translate(`${currentMode}Loading`)) => {
+            loader.textContent = message;
+            loader.style.display = show ? 'block' : 'none';
+        }
+
+        const openModal = (itemKey, representativeItem) => {
+            const title = representativeItem.content?.title || representativeItem.title;
+            
+            doc('modal-title').textContent = title;
+            doc('modal-poster-img').src = findPosterPath(representativeItem.content.attributes) ? `${IMAGE_BASE_URL}${findPosterPath(representativeItem.content.attributes)}` : '';
+            doc('modal-poster-img').alt = `Poster for ${title}`;
+            doc('modal-year').textContent = representativeItem.content?.releaseYear || 'N/A';
+            doc('modal-overview').textContent = representativeItem.content?.overview || '';
+            doc('external-links').innerHTML = (representativeItem.content?.externalLinks || []).map(link => `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.metadataSource.name}</a>`).join('');
+
+            torrentListContainer.innerHTML = `<p>${translate('loading')}</p>`;
+            filterTagsContainer.innerHTML = '';
+            doc('season-filter-container').innerHTML = '';
+            doc('modal-episodes').style.display = 'none';
+
+            detailsModal.showModal();
+            document.body.style.overflow = 'hidden';
+
+            fetchAndRenderFullModalContent(representativeItem);
+        };
+        
+        const fetchAndRenderFullModalContent = async (representativeItem) => {
+            try {
+                const titleQuery = representativeItem.content?.title;
+                if (!titleQuery) throw new Error("No title found for fetching details.");
+
+                const contentType = currentMode === 'movie' ? 'movie' : 'tv_show';
+                const searchInputVars = { limit: 200, queryString: `"${titleQuery}"`, facets: { contentType: { filter: [contentType] } } };
+
+                const data = await callApi(GQL_QUERY, { input: searchInputVars });
+                const allRelatedItems = data.torrentContent.search.items;
+                
+                const mainKey = getItemKey(representativeItem);
+                const finalItemGroup = allRelatedItems.filter(item => getItemKey(item) === mainKey);
+
+                detailsModal._fullItemGroup = finalItemGroup; // Cache the full item group data on the modal element
+
+                if (finalItemGroup.length > 0) {
+                    populateModalLists(finalItemGroup);
+                } else {
+                    torrentListContainer.innerHTML = `<p>${translate('noResults', {query: titleQuery})}</p>`;
+                }
+            } catch (error) {
+                console.error("Failed to fetch full modal content:", error);
+                torrentListContainer.innerHTML = `<p>${translate('error')}</p>`;
+            }
+        };
+
+        const getSeasonFromTorrent = (torrent) => {
+            if (torrent.episodes?.seasons?.length > 0) {
+                const seasonNum = torrent.episodes.seasons.reduce((min, s) => Math.min(min, s.season), Infinity);
+                if (seasonNum !== Infinity) return seasonNum;
+            }
+            const match = torrent.title.match(/\b(s|season)\s*(\d{1,2})\b/i);
+            return (match && match[2]) ? parseInt(match[2], 10) : 'unknown';
+        };
+        
+        const renderTorrentList = (items) => {
+            torrentListContainer.innerHTML = '';
+
+            if (!items || items.length === 0) {
+                torrentListContainer.innerHTML = `<p class="torrent-list-status">${translate('noResultsForFilter')}</p>`;
+                return;
+            }
+
+            const torrentsByName = new Map();
+            items.forEach(torrent => {
+                const title = torrent.title;
+                if (!torrentsByName.has(title)) torrentsByName.set(title, []);
+                torrentsByName.get(title).push(torrent);
+            });
+            
+            const fragment = document.createDocumentFragment();
+            for (const [title, group] of torrentsByName.entries()) {
+                // Always sort subgroups by seeders to show the healthiest torrent first.
+                group.sort((a, b) => (b.seeders ?? 0) - (a.seeders ?? 0));
+
+                if (group.length > 1) {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'torrent-group';
+                    groupDiv.innerHTML = `
+                        <div class="torrent-group-header">
+                            <span class="expand-group-btn">+</span>
+                            <div class="torrent-group-title" title="${title}">${title}</div>
+                            <div class="torrent-group-meta">${group.length} versions</div>
+                        </div>
+                        <div class="torrent-group-body"></div>`;
+                    const groupBody = groupDiv.querySelector('.torrent-group-body');
+                    group.forEach(torrent => groupBody.appendChild(createTorrentItemElement(torrent)));
+                    fragment.appendChild(groupDiv);
+                } else {
+                    fragment.appendChild(createTorrentItemElement(group[0]));
+                }
+            }
+            torrentListContainer.appendChild(fragment);
+        };
+
+        const createTorrentItemElement = (torrent) => {
+            const itemDiv = document.createElement('article');
+            itemDiv.className = 'torrent-item';
+            
+            const filesCount = torrent.torrent.filesCount;
+            const isSingleFile = torrent.torrent.singleFile || filesCount === 1;
+
+            const details = [`<strong>${translate('size')}:</strong> ${formatBytes(torrent.torrent.size)}`, `<strong>${translate('seed')}:</strong> ${torrent.seeders ?? 'N/A'}`, `<strong>${translate('leech')}:</strong> ${torrent.leechers ?? 'N/A'}`];
+            if (torrent.videoResolution) details.push(`<strong>${translate('res')}:</strong> ${torrent.videoResolution.replace('V','')}`);
+            if (filesCount) details.push(`<strong>${translate('files')}:</strong> ${filesCount}`);
+
+            const expandButtonHTML = !isSingleFile && filesCount > 1 ? `<button class="expand-files-btn" data-infohash="${torrent.infoHash}" title="Show files">+</button>` : `<span class="expand-files-placeholder"></span>`;
+            
+            itemDiv.innerHTML = `<div class="torrent-item-main">${expandButtonHTML}<div class="torrent-item-details" title="${torrent.title}"><span>${torrent.title}</span><div>${details.join(' | ')}</div></div><button class="modal-btn copy-btn torrent-copy-btn">${translate('copyButton')}</button></div><div class="file-list-container"></div>`;
+            itemDiv.querySelector('.torrent-copy-btn').dataset.magnet = torrent.torrent.magnetUri;
+            return itemDiv;
+        };
+
+        const populateModalLists = (itemGroup) => {
+            // Sort the entire list based on the current mode
+            if (currentMode === 'tv') {
+                // For TV shows, use natural name sort to order episodes correctly
+                itemGroup.sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' }));
+            } else {
+                // MODIFIED: For movies, sort by size to show largest first
+                itemGroup.sort((a, b) => (b.torrent.size ?? 0) - (a.torrent.size ?? 0));
+            }
+            
+            const resolutions = new Set(itemGroup.map(m => m.videoResolution).filter(Boolean));
+            const availableSeasons = new Set();
+            if (currentMode === 'tv') {
+                itemGroup.forEach(torrent => availableSeasons.add(getSeasonFromTorrent(torrent)));
+            }
+
+            // Render Resolution Filters
+            filterTagsContainer.innerHTML = '';
+            if (resolutions.size > 1) {
+                const allTag = document.createElement('button');
+                allTag.className = 'filter-tag active'; allTag.textContent = translate('allTag'); allTag.dataset.filter = 'all';
+                filterTagsContainer.appendChild(allTag);
+                Array.from(resolutions).sort().forEach(res => {
+                    const resTag = document.createElement('button');
+                    resTag.className = 'filter-tag'; resTag.textContent = res.replace('V', ''); resTag.dataset.filter = res;
+                    filterTagsContainer.appendChild(resTag);
+                });
+            }
+
+            // TV-Show specific rendering
+            const seasonFilterContainer = doc('season-filter-container');
+            const episodesEl = doc('modal-episodes');
+            seasonFilterContainer.innerHTML = '';
+            episodesEl.style.display = 'none';
+
+            if (currentMode === 'tv') {
+                const totalEpisodes = itemGroup.reduce((sum, t) => sum + (t.episodes?.label.split(',').length || 0), 0);
+                if (totalEpisodes > 0) {
+                    episodesEl.textContent = translate('episodesLabel', {count: totalEpisodes});
+                    episodesEl.style.display = 'block';
+                }
+
+                const sortedSeasons = Array.from(availableSeasons).filter(s => s !== 'unknown').sort((a, b) => a - b);
+                if (sortedSeasons.length > 1) {
+                    const allButton = document.createElement('button');
+                    allButton.className = 'filter-tag active'; allButton.textContent = translate('allTag'); allButton.dataset.season = 'all';
+                    seasonFilterContainer.appendChild(allButton);
+                    sortedSeasons.forEach(seasonNum => {
+                        const seasonButton = document.createElement('button');
+                        seasonButton.className = 'filter-tag'; seasonButton.textContent = `S${seasonNum}`; seasonButton.dataset.season = seasonNum;
+                        seasonFilterContainer.appendChild(seasonButton);
+                    });
+                }
+            }
+            
+            // Initial render of the torrent list
+            renderTorrentList(itemGroup);
+        };
+        
+        const closeModal = () => { detailsModal.close(); document.body.style.overflow = 'auto'; };
+        const showToast = (message) => { toast.textContent = message; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2000); };
+        const loadSettings = () => { appSettings = { apiEndpoint: localStorage.getItem('apiEndpoint') || '' }; doc('api-endpoint-input').value = appSettings.apiEndpoint; };
+        const saveSettings = () => { localStorage.setItem('apiEndpoint', doc('api-endpoint-input').value.trim()); location.reload(); };
+
+        const applyAllFilters = () => {
+            const fullItemGroup = detailsModal._fullItemGroup;
+            if (!fullItemGroup) return;
+
+            const selectedSeason = doc('season-filter-container').querySelector('.active')?.dataset.season || 'all';
+            const selectedResolution = doc('filter-tags-container').querySelector('.active')?.dataset.filter || 'all';
+
+            const filteredItems = fullItemGroup.filter(item => {
+                const seasonMatch = currentMode !== 'tv' || selectedSeason === 'all' || (getSeasonFromTorrent(item) == selectedSeason);
+                const resolutionMatch = selectedResolution === 'all' || (item.videoResolution || 'unknown') === selectedResolution;
+                return seasonMatch && resolutionMatch;
+            });
+
+            renderTorrentList(filteredItems);
+        };
+
+        const setMode = (mode) => {
+            currentMode = mode;
+            doc('mode-btn-movie').classList.toggle('active', mode === 'movie');
+            doc('mode-btn-tv').classList.toggle('active', mode === 'tv');
+            localStorage.setItem('mediaWallMode', mode);
+            applyTranslations();
+            searchInput.value = '';
+            currentQueryString = '';
+            resetAndLoad();
+        };
+
+        // --- Event Listeners ---
+        doc('mode-btn-movie').addEventListener('click', () => setMode('movie'));
+        doc('mode-btn-tv').addEventListener('click', () => setMode('tv'));
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query === currentQueryString) return;
+            currentQueryString = query;
+            resetAndLoad();
+        });
+
+        posterWall.addEventListener('click', (e) => { 
+            const item = e.target.closest('.poster-item'); 
+            if (item) {
+                const itemKey = item.dataset.itemKey;
+                const itemGroup = groupedItems.get(itemKey);
+                if (itemKey && itemGroup) {
+                    const representativeItem = itemGroup.find(m => findPosterPath(m.content?.attributes)) || itemGroup[0];
+                    openModal(itemKey, representativeItem);
+                }
+            }
+        });
+        
+        window.addEventListener('scroll', () => { if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && !isLoading) loadMoreItems(); });
+        
+        doc('modal-close-btn').addEventListener('click', closeModal);
+        detailsModal.addEventListener('click', (e) => { if (e.target === detailsModal) closeModal(); });
+        
+        detailsModal.addEventListener('click', (e) => {
+            const target = e.target;
+            if (target.classList.contains('filter-tag')) {
+                const container = target.parentElement;
+                if (container.querySelector('.active')) container.querySelector('.active').classList.remove('active');
+                target.classList.add('active');
+                applyAllFilters();
+            }
+        });
+
+        torrentListContainer.addEventListener('click', async (e) => {
+            const copyBtn = e.target.closest('.torrent-copy-btn');
+            if (copyBtn) {
+                navigator.clipboard.writeText(copyBtn.dataset.magnet).then(() => showToast(translate('toastCopied'))).catch(() => showToast(translate('toastFailed')));
+                return;
+            }
+
+            const expandBtn = e.target.closest('.expand-files-btn');
+            if (expandBtn) {
+                const torrentItem = expandBtn.closest('.torrent-item');
+                const fileListContainer = torrentItem.querySelector('.file-list-container');
+                const infoHash = expandBtn.dataset.infohash;
+                const isVisible = fileListContainer.style.display === 'block';
+                fileListContainer.style.display = isVisible ? 'none' : 'block';
+                expandBtn.textContent = isVisible ? '+' : '−';
+                if (!isVisible && !fileListContainer.hasAttribute('data-loaded')) {
+                    fileListContainer.innerHTML = `<ul><li>${translate('loading')}</li></ul>`;
+                    try {
+                        const fileData = await callApi(GQL_FILES_QUERY, { input: { infoHashes: [infoHash] } });
+                        const files = fileData?.torrent?.files?.items;
+                        if (files && files.length > 0) {
+                            fileListContainer.innerHTML = `<ul>${files.map(file => `<li><span class="file-path">${file.path}</span><span class="file-size">${formatBytes(file.size)}</span></li>`).join('')}</ul>`;
+                        } else { fileListContainer.innerHTML = `<ul><li>Could not retrieve file list.</li></ul>`; }
+                        fileListContainer.setAttribute('data-loaded', 'true');
+                    } catch (error) { console.error('Failed to fetch torrent files:', error); fileListContainer.innerHTML = '<ul><li>Error loading files.</li></ul>'; }
+                }
+                return;
+            }
+            
+            const groupHeader = e.target.closest('.torrent-group-header');
+            if(groupHeader) {
+                const groupBody = groupHeader.nextElementSibling;
+                const expandGroupBtn = groupHeader.querySelector('.expand-group-btn');
+                const isVisible = groupBody.style.display === 'flex';
+                groupBody.style.display = isVisible ? 'none' : 'flex';
+                if(expandGroupBtn) expandGroupBtn.textContent = isVisible ? '+' : '−';
+            }
+        });
+
+        doc('language-switcher').addEventListener('change', (e) => { currentLanguage = e.target.value; localStorage.setItem('mediaWallLanguage', currentLanguage); applyTranslations(); });
+        
+        const settingsModal = doc('settings-modal');
+        doc('settings-btn').addEventListener('click', () => settingsModal.showModal());
+        doc('close-settings-btn').addEventListener('click', () => settingsModal.close());
+        settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.close(); });
+        doc('settings-form').addEventListener('submit', (e) => { e.preventDefault(); saveSettings(); });
+
+        const init = () => {
+            loadSettings();
+            currentLanguage = getInitialLanguage();
+            populateLanguageSwitcher();
+            
+            const savedMode = localStorage.getItem('mediaWallMode');
+            setMode(savedMode === 'tv' ? 'tv' : 'movie');
+
+            if (!appSettings.apiEndpoint) {
+                posterWall.innerHTML = `<p class="status-message">${translate('welcome')}</p>`;
+            }
+        };
+
+        init();
+    });
+    </script>
+</body>
+</html>
