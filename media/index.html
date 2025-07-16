@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media</title>
     <style>
-        /* --- General & Theming --- */
         :root {
             --bg-color: #101010;
             --card-bg-color: #181818;
@@ -29,33 +28,28 @@
             padding: 2rem;
         }
         
-        /* --- Custom Scrollbar Styling --- */
         ::-webkit-scrollbar { width: 12px; }
         ::-webkit-scrollbar-track { background: var(--scrollbar-track-color); }
         ::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb-color); border-radius: 10px; border: 3px solid var(--scrollbar-track-color); }
         ::-webkit-scrollbar-thumb:hover { background-color: var(--scrollbar-thumb-hover-color); }
         html { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color); }
 
-        /* --- Layout & Header --- */
         .container { max-width: 1600px; margin: 0 auto; width: 100%; }
         header { display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
         .title-section { display: flex; align-items: center; gap: 1.5rem; }
         .title { font-size: 2.5rem; font-weight: 600; margin: 0; color: var(--text-color); white-space: nowrap; }
 
-        /* --- Mode Switcher --- */
         .mode-switcher { display: flex; background-color: #222; border-radius: 8px; padding: 4px; border: 1px solid var(--border-color); }
         .mode-btn { background: none; border: none; color: var(--text-muted-color); padding: 0.5rem 1rem; font-size: 0.9rem; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
         .mode-btn.active { background-color: var(--primary-color); color: white; font-weight: 600; }
         .mode-btn:not(.active):hover { background-color: #333; color: var(--text-color); }
         
-        /* --- Search Bar --- */
         .search-form { display: flex; width: 100%; max-width: 600px; flex-grow: 1; }
         #search-input { width: 100%; flex-grow: 1; min-width: 100px; border: 1px solid var(--border-color); background-color: #222; color: var(--text-color); padding: 0.75rem 1rem; font-size: 1rem; border-radius: 6px 0 0 6px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
         #search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); }
         #search-button { flex-shrink: 0; border: 1px solid var(--primary-color); background-color: var(--primary-color); color: white; padding: 0 1.5rem; cursor: pointer; border-radius: 0 6px 6px 0; font-size: 1rem; font-weight: 500; transition: background-color 0.2s; }
         #search-button:hover { background-color: var(--primary-hover-color); }
         
-        /* --- Header Controls --- */
         .header-controls { display: flex; align-items: center; gap: 1rem; flex-wrap: nowrap; }
         .select-wrapper { position: relative; }
         .select-wrapper::after {
@@ -81,7 +75,6 @@
         }
         #settings-btn:hover { color: var(--text-color); border-color: var(--text-color); transform: rotate(30deg); }
 
-        /* --- Poster Wall & Statuses --- */
         .poster-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
         .poster-item { position: relative; background-color: var(--card-bg-color); border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; box-shadow: 0 4px 15px var(--shadow-color); }
         .poster-item:hover { transform: scale(1.05); box-shadow: 0 8px 30px var(--shadow-color); }
@@ -91,17 +84,39 @@
         .status-message { grid-column: 1 / -1; text-align: center; color: var(--text-muted-color); font-size: 1.2rem; padding: 5rem 0; }
         #loader { width: 100%; text-align: center; padding: 2rem; font-size: 1.2rem; color: var--text-muted-color; display: none; }
         
-        /* --- DIALOG (Modal) STYLES --- */
-        dialog {
-            position: fixed; margin: auto; transform: scale(0.95);
-            background: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); width: 90%; max-width: 1024px; max-height: 90vh;
-            overflow-y: auto; padding: 0; z-index: 2000; transition: transform 0.3s ease, opacity 0.3s ease;
-            opacity: 0; color: var(--text-color);
+        .modal-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background-color: rgba(0, 0, 0, 0.85);
+            -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
-        dialog[open] { transform: scale(1); opacity: 1; }
-        dialog::backdrop { background-color: rgba(0, 0, 0, 0.85); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
-        .modal-content { display: flex; gap: 2rem; padding: 2rem; }
+        .modal-container.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-dialog {
+            background: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); width: 90%; max-width: 1024px;
+            height: 90vh;
+            color: var(--text-color);
+            transform: scale(0.95);
+            transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        .modal-container.is-open .modal-dialog {
+            transform: scale(1);
+        }
+        .modal-content { 
+            display: flex; gap: 2rem; padding: 2rem; 
+            overflow-y: auto;
+        }
         .modal-poster { flex-shrink: 0; width: 250px; display: flex; flex-direction: column; gap: 1rem; }
         .modal-poster img { width: 100%; border-radius: 8px; }
         .modal-details { display: flex; flex-direction: column; gap: 1rem; min-width: 0; flex-grow: 1; }
@@ -119,13 +134,35 @@
         .close-btn { background-color: #dc3545; color: white; }
         .close-btn:hover { background-color: #c82333; }
         
-        /* --- Filters --- */
+        #modal-close-btn, #close-settings-btn {
+            display: none;
+        }
+
+        .modal-back-btn {
+            display: none;
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            z-index: 20;
+            background: none;
+            border: none;
+            color: var(--text-muted-color);
+            font-size: 3rem;
+            font-weight: 300;
+            line-height: 1;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .modal-back-btn:hover {
+            color: var(--text-color);
+        }
+
         .filter-tags-container { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
         .filter-tag { background-color: #333; color: var(--text-muted-color); border: 1px solid var(--border-color); padding: 0.3rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem; text-align: center; transition: all 0.2s ease; white-space: nowrap; }
         .filter-tag:hover { border-color: var(--primary-color); color: var(--text-color); }
         .filter-tag.active { background-color: var(--primary-color); border-color: var(--primary-color); color: white; font-weight: bold; }
         
-        /* --- Torrents Section & TV-Specific Season Filter --- */
         .torrents-section { margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; display: flex; flex-direction: column; }
         .torrents-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 0.75rem; }
         .torrents-heading { margin: 0; flex-shrink: 0; }
@@ -133,7 +170,6 @@
         #torrent-list-container { flex-grow: 1; display: flex; flex-direction: column; gap: 0.75rem; text-align: left; }
         .torrent-list-status { color: var(--text-muted-color); padding: 2rem 0; text-align: center; }
         
-        /* --- Torrent Item & Group Styles --- */
         .torrent-item { display: flex; flex-direction: column; background-color: #222; padding: 0.75rem; border-radius: 6px; }
         .torrent-item-main { display: flex; align-items: center; gap: 0.75rem; width: 100%; }
         .torrent-group { display: flex; flex-direction: column; background-color: #2a2a2a; border-radius: 6px; overflow: hidden; border: 1px solid #333; }
@@ -172,20 +208,29 @@
         .torrent-item-details strong { color: var(--text-color); }
         .torrent-item-details > div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-
-        /* --- Settings Modal Styles --- */
-        dialog#settings-modal { max-width: 500px; }
+        #settings-modal .modal-dialog { max-width: 500px; height: auto; }
         #settings-modal .modal-content { display: block; }
         #settings-modal .form-group { margin-bottom: 1rem; }
         #settings-modal .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
         #settings-modal .form-group input { width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; font-size: 1rem; border: 1px solid var(--border-color); border-radius: 6px; background-color: #333; color: var(--text-color); }
         #settings-modal footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
 
-        /* Toast Notification */
-        #toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #28a745; color: #fff; padding: 1rem 2rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 3000; opacity: 0; transition: bottom 0.5s ease, opacity 0.5s ease; }
-        #toast.show { bottom: 2rem; opacity: 1; }
+        #toast { 
+            position: fixed; 
+            top: -100px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background-color: #28a745; color: #fff; padding: 1rem 2rem; border-radius: 8px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+            z-index: 3000; 
+            opacity: 0; 
+            transition: top 0.5s ease, opacity 0.5s ease; 
+        }
+        #toast.show { 
+            top: 2rem; 
+            opacity: 1; 
+        }
         
-        /* --- Media Queries --- */
         @media (max-width: 1024px) {
             .title-section { 
                 order: 0; 
@@ -200,7 +245,35 @@
                 margin-top: 1rem; 
             }
         }
-        @media (max-width: 900px) { .modal-content { flex-direction: column; align-items: center; text-align: center; } .modal-details, .torrents-section { align-items: center; } .modal-actions, .external-links { justify-content: center; } }
+        @media (max-width: 900px) {
+            .modal-dialog {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 0;
+                box-shadow: none;
+                transform: scale(1);
+            }
+            .modal-back-btn {
+                display: block;
+            }
+            .modal-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding-top: 5rem;
+            }
+            .modal-details, .torrents-section {
+                align-items: center;
+            }
+            .external-links {
+                justify-content: center;
+            }
+            #settings-modal .modal-content {
+                text-align: left;
+            }
+        }
         @media (max-width: 768px) { 
             header { row-gap: 1rem; } 
             .search-form { order: 3; width: 100%; margin-top: 1rem; margin-bottom: 0; }
@@ -212,7 +285,9 @@
         @media (max-width: 600px) { 
             body { padding: 1rem; } .title { font-size: 2rem; } 
             .poster-wall { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; } 
-            .modal-content { padding: 1.5rem; } .modal-poster { width: 60%; } .modal-title { font-size: 1.8rem; }
+            .modal-content { padding: 1.5rem; padding-top: 5rem; }
+            .modal-poster { width: 60%; }
+            .modal-title { font-size: 1.8rem; }
             #details-modal footer, #settings-modal footer { flex-direction: column; }
             #details-modal footer .modal-btn, #settings-modal footer .modal-btn { width: 100%; box-sizing: border-box; }
         }
@@ -245,47 +320,51 @@
         </main>
     </div>
 
-    <dialog id="details-modal">
-        <div class="modal-content">
-            <figure class="modal-poster">
-                <img id="modal-poster-img" src="" alt="Poster">
-                <div id="filter-tags-container" class="filter-tags-container"></div>
-            </figure>
-            <div class="modal-details">
-                <h2 id="modal-title">Title</h2>
-                <p id="modal-year" class="modal-year">2025</p>
-                <p id="modal-episodes" class="modal-episodes"></p>
-                <p id="modal-overview">Synopsis goes here...</p>
-                <div translate="no" id="external-links" class="external-links"></div>
-                <section class="torrents-section" translate="no">
-                    <div class="torrents-header">
-                        <h3 id="torrents-heading" class="torrents-heading"></h3>
-                        <div id="season-filter-container"></div>
-                    </div>
-                    <div id="torrent-list-container"></div>
-                </section>
-                <footer class="modal-actions">
-                    <button id="modal-close-btn" class="modal-btn close-btn" translate="no">Close</button>
-                </footer>
-            </div>
-        </div>
-    </dialog>
-    
-    <dialog id="settings-modal">
-        <div class="modal-content">
-            <h2 id="settings-title"></h2>
-            <form id="settings-form">
-                <div class="form-group">
-                    <label for="api-endpoint-input" id="api-endpoint-label"></label>
-                    <input type="url" id="api-endpoint-input" placeholder="http://localhost:3333/graphql">
+    <div id="details-modal" class="modal-container" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-dialog">
+            <button id="details-modal-back-btn" class="modal-back-btn" aria-label="Close">&lsaquo;</button>
+            <div class="modal-content">
+                <figure class="modal-poster">
+                    <img id="modal-poster-img" src="" alt="Poster">
+                    <div id="filter-tags-container" class="filter-tags-container"></div>
+                </figure>
+                <div class="modal-details">
+                    <h2 id="modal-title">Title</h2>
+                    <p id="modal-year" class="modal-year">2025</p>
+                    <p id="modal-episodes" class="modal-episodes"></p>
+                    <p id="modal-overview">Synopsis goes here...</p>
+                    <div translate="no" id="external-links" class="external-links"></div>
+                    <section class="torrents-section" translate="no">
+                        <div class="torrents-header">
+                            <h3 id="torrents-heading" class="torrents-heading"></h3>
+                            <div id="season-filter-container"></div>
+                        </div>
+                        <div id="torrent-list-container"></div>
+                    </section>
                 </div>
-                <footer class="modal-actions">
-                    <button id="save-settings-btn" type="submit" class="modal-btn copy-btn"></button>
-                    <button id="close-settings-btn" type="button" class="modal-btn close-btn"></button>
-                </footer>
-            </form>
+            </div>
+            <button id="modal-close-btn" class="modal-btn close-btn" translate="no">Close</button>
         </div>
-    </dialog>
+    </div>
+    
+    <div id="settings-modal" class="modal-container" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+         <div class="modal-dialog">
+            <button id="settings-modal-back-btn" class="modal-back-btn" aria-label="Close">&lsaquo;</button>
+            <div class="modal-content">
+                <h2 id="settings-title"></h2>
+                <form id="settings-form">
+                    <div class="form-group">
+                        <label for="api-endpoint-input" id="api-endpoint-label"></label>
+                        <input type="url" id="api-endpoint-input" placeholder="http://localhost:3333/graphql">
+                    </div>
+                    <footer class="modal-actions">
+                        <button id="save-settings-btn" type="submit" class="modal-btn copy-btn"></button>
+                    </footer>
+                </form>
+            </div>
+            <button id="close-settings-btn" type="button" class="modal-btn close-btn"></button>
+        </div>
+    </div>
     
     <div id="toast" role="status" aria-live="polite" translate="no"></div>
 
@@ -329,7 +408,7 @@
         };
 
         let currentLanguage = 'en';
-        let currentMode = 'movie'; // 'movie' or 'tv'
+        let currentMode = 'movie';
         let appSettings = {};
 
         const translate = (key, replacements = {}) => {
@@ -347,8 +426,6 @@
             doc('settings-title').textContent = translate('settingsTitle');
             doc('api-endpoint-label').textContent = translate('apiEndpointLabel');
             doc('save-settings-btn').textContent = translate('saveButton');
-            doc('close-settings-btn').textContent = translate('closeButton');
-            doc('modal-close-btn').textContent = translate('closeButton');
             doc('torrents-heading').textContent = translate('availableTorrents');
             doc('search-input').placeholder = translate(`${currentMode}SearchPlaceholder`);
         };
@@ -384,6 +461,7 @@
         const posterWall = doc('poster-wall'), loader = doc('loader'), toast = doc('toast');
         const searchForm = doc('search-form'), searchInput = doc('search-input');
         const detailsModal = doc('details-modal');
+        const settingsModal = doc('settings-modal');
         const torrentListContainer = doc('torrent-list-container');
         const filterTagsContainer = doc('filter-tags-container');
         
@@ -418,33 +496,19 @@
         const findPosterPath = (attributes) => attributes?.find(attr => attr.key === 'poster_path')?.value || null;
 
         const getItemKey = (item) => {
-            // TV show logic remains unchanged
             if (currentMode === 'tv') {
-                if (item.contentId && item.contentSource) {
-                    return `tv:${item.contentSource}:${item.contentId}`;
-                }
+                if (item.contentId && item.contentSource) return `tv:${item.contentSource}:${item.contentId}`;
                 const title = item.content?.title || item.title;
                 return `tv:${title.replace(/s\d{1,2}.*/i, '').trim().toLowerCase()}`;
             }
-
-            // New Movie Logic: Prioritize ID, then Title+Year, then just Title
             if (currentMode === 'movie') {
-                // Priority 1: Use content source and ID (e.g., tmdb:12345)
-                if (item.contentId && item.contentSource) {
-                    return `movie:${item.contentSource}:${item.contentId}`;
-                }
-                // Priority 2: Use title and year if no ID is available
+                if (item.contentId && item.contentSource) return `movie:${item.contentSource}:${item.contentId}`;
                 const title = item.content?.title || item.title;
                 const year = item.content?.releaseYear;
-                if (title && year) {
-                    return `movie:${title.trim().toLowerCase()}:${year}`;
-                }
-                // Fallback: Use only the title
+                if (title && year) return `movie:${title.trim().toLowerCase()}:${year}`;
                 const fallbackTitle = item.content?.title || item.title;
                 return `movie:${fallbackTitle.trim().toLowerCase()}`;
             }
-            
-            // Generic fallback (should not be reached if mode is always movie/tv)
             return (item.content?.title || item.title).trim().toLowerCase();
         };
 
@@ -522,9 +586,7 @@
 
                 if (currentMode === 'movie') {
                     const year = representativeItem.content?.releaseYear;
-                    if (year) {
-                        displayTitle = `${baseTitle} (${year})`;
-                    }
+                    if (year) displayTitle = `${baseTitle} (${year})`;
                 }
                 
                 item.innerHTML = `<img src="${IMAGE_BASE_URL}${posterPath}" alt="${displayTitle}" loading="lazy"><div class="poster-overlay"><h3 class="poster-title">${displayTitle}</h3></div>`;
@@ -542,12 +604,60 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
         };
 
+        async function copyTextToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (err) {
+                    console.error('Failed to copy using navigator.clipboard:', err);
+                }
+            }
+
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '-9999px';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                return successful;
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                document.body.removeChild(textArea);
+                return false;
+            }
+        }
+
         const showLoader = (show, message = translate(`${currentMode}Loading`)) => {
             loader.textContent = message;
             loader.style.display = show ? 'block' : 'none';
         }
+        
+        const openModalById = (id) => {
+            const modal = doc(id);
+            modal.hidden = false;
+            document.body.style.overflow = 'hidden';
+            requestAnimationFrame(() => modal.classList.add('is-open'));
+        };
+        
+        const closeModalById = (id) => {
+            const modal = doc(id);
+            modal.classList.remove('is-open');
+            document.body.style.overflow = 'auto';
 
-        const openModal = (itemKey, representativeItem) => {
+            modal.addEventListener('transitionend', (e) => {
+                if (e.target === modal) { 
+                    modal.hidden = true;
+                }
+            }, { once: true });
+        };
+
+        const showDetailsModal = (itemKey, representativeItem) => {
             const title = representativeItem.content?.title || representativeItem.title;
             
             doc('modal-title').textContent = title;
@@ -562,8 +672,7 @@
             doc('season-filter-container').innerHTML = '';
             doc('modal-episodes').style.display = 'none';
 
-            detailsModal.showModal();
-            document.body.style.overflow = 'hidden';
+            openModalById('details-modal');
 
             fetchAndRenderFullModalContent(representativeItem);
         };
@@ -582,7 +691,7 @@
                 const mainKey = getItemKey(representativeItem);
                 const finalItemGroup = allRelatedItems.filter(item => getItemKey(item) === mainKey);
 
-                detailsModal._fullItemGroup = finalItemGroup; // Cache the full item group data on the modal element
+                detailsModal._fullItemGroup = finalItemGroup;
 
                 if (finalItemGroup.length > 0) {
                     populateModalLists(finalItemGroup);
@@ -621,9 +730,6 @@
             
             const fragment = document.createDocumentFragment();
             for (const [title, group] of torrentsByName.entries()) {
-                // Always sort subgroups by seeders to show the healthiest torrent first.
-                group.sort((a, b) => (b.seeders ?? 0) - (a.seeders ?? 0));
-
                 if (group.length > 1) {
                     const groupDiv = document.createElement('div');
                     groupDiv.className = 'torrent-group';
@@ -663,12 +769,9 @@
         };
 
         const populateModalLists = (itemGroup) => {
-            // Sort the entire list based on the current mode
             if (currentMode === 'tv') {
-                // For TV shows, use natural name sort to order episodes correctly
                 itemGroup.sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' }));
             } else {
-                // MODIFIED: For movies, sort by size to show largest first
                 itemGroup.sort((a, b) => (b.torrent.size ?? 0) - (a.torrent.size ?? 0));
             }
             
@@ -678,7 +781,6 @@
                 itemGroup.forEach(torrent => availableSeasons.add(getSeasonFromTorrent(torrent)));
             }
 
-            // Render Resolution Filters
             filterTagsContainer.innerHTML = '';
             if (resolutions.size > 1) {
                 const allTag = document.createElement('button');
@@ -691,7 +793,6 @@
                 });
             }
 
-            // TV-Show specific rendering
             const seasonFilterContainer = doc('season-filter-container');
             const episodesEl = doc('modal-episodes');
             seasonFilterContainer.innerHTML = '';
@@ -717,11 +818,9 @@
                 }
             }
             
-            // Initial render of the torrent list
             renderTorrentList(itemGroup);
         };
         
-        const closeModal = () => { detailsModal.close(); document.body.style.overflow = 'auto'; };
         const showToast = (message) => { toast.textContent = message; toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 2000); };
         const loadSettings = () => { appSettings = { apiEndpoint: localStorage.getItem('apiEndpoint') || '' }; doc('api-endpoint-input').value = appSettings.apiEndpoint; };
         const saveSettings = () => { localStorage.setItem('apiEndpoint', doc('api-endpoint-input').value.trim()); location.reload(); };
@@ -753,7 +852,6 @@
             resetAndLoad();
         };
 
-        // --- Event Listeners ---
         doc('mode-btn-movie').addEventListener('click', () => setMode('movie'));
         doc('mode-btn-tv').addEventListener('click', () => setMode('tv'));
 
@@ -772,15 +870,14 @@
                 const itemGroup = groupedItems.get(itemKey);
                 if (itemKey && itemGroup) {
                     const representativeItem = itemGroup.find(m => findPosterPath(m.content?.attributes)) || itemGroup[0];
-                    openModal(itemKey, representativeItem);
+                    showDetailsModal(itemKey, representativeItem);
                 }
             }
         });
         
         window.addEventListener('scroll', () => { if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && !isLoading) loadMoreItems(); });
         
-        doc('modal-close-btn').addEventListener('click', closeModal);
-        detailsModal.addEventListener('click', (e) => { if (e.target === detailsModal) closeModal(); });
+        detailsModal.addEventListener('click', (e) => { if (e.target === detailsModal) closeModalById('details-modal'); });
         
         detailsModal.addEventListener('click', (e) => {
             const target = e.target;
@@ -795,7 +892,9 @@
         torrentListContainer.addEventListener('click', async (e) => {
             const copyBtn = e.target.closest('.torrent-copy-btn');
             if (copyBtn) {
-                navigator.clipboard.writeText(copyBtn.dataset.magnet).then(() => showToast(translate('toastCopied'))).catch(() => showToast(translate('toastFailed')));
+                const magnetLink = copyBtn.dataset.magnet;
+                const success = await copyTextToClipboard(magnetLink);
+                showToast(success ? translate('toastCopied') : translate('toastFailed'));
                 return;
             }
 
@@ -833,11 +932,12 @@
 
         doc('language-switcher').addEventListener('change', (e) => { currentLanguage = e.target.value; localStorage.setItem('mediaWallLanguage', currentLanguage); applyTranslations(); });
         
-        const settingsModal = doc('settings-modal');
-        doc('settings-btn').addEventListener('click', () => settingsModal.showModal());
-        doc('close-settings-btn').addEventListener('click', () => settingsModal.close());
-        settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.close(); });
+        doc('settings-btn').addEventListener('click', () => openModalById('settings-modal'));
+        settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeModalById('settings-modal'); });
         doc('settings-form').addEventListener('submit', (e) => { e.preventDefault(); saveSettings(); });
+
+        doc('details-modal-back-btn').addEventListener('click', () => closeModalById('details-modal'));
+        doc('settings-modal-back-btn').addEventListener('click', () => closeModalById('settings-modal'));
 
         const init = () => {
             loadSettings();
